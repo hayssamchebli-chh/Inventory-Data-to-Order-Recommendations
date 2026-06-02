@@ -243,7 +243,8 @@ with st.sidebar:
     st.markdown(
         """
         **In order**  
-        PO not Shipped + PR Approved Qty + PO Qty + Qty to Recieve - Advanced Reserved
+        PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty + Qty to Recieve - Advanced Reserved
+        
 
         **Forcasted**  
         Stock Available Quantity + In order
@@ -332,7 +333,8 @@ if uploaded_file:
         "Qty Sold",
         "Qty Sold PYear",
         "Cons. Qty",
-        "Cons. Qty New"
+        "Cons. Qty New",
+        "Blanket PO Qty"
     ]
 
     missing_cols = [c for c in required_columns if c not in df.columns]
@@ -422,7 +424,8 @@ if uploaded_file:
         "Qty Sold PYear",
         "Cons. Qty",
         "Cons. Qty New",
-        "Safety stock factor"
+        "Safety stock factor",
+        "Blanket PO Qty"
     ]
 
     for col in numeric_columns:
@@ -529,7 +532,7 @@ if uploaded_file:
     # -------------------------
     # CALCULATIONS
     # -------------------------
-    df["In order"] = df["PO not Shipped"] + df["PR Approved Qty"] + df["PO Qty"] + df["Qty to Recieve"] - df["Advanced Reserved"]
+    df["In order"] = df["PO not Shipped"] + df["PR Approved Qty"] + df["PO Qty"] + df["Qty to Recieve"] + df["Blanket PO Qty"] - df["Advanced Reserved"]
 
     df["Forcasted"] = df["Stock Available Quantity"] + df["In order"]
 
@@ -559,6 +562,7 @@ if uploaded_file:
         "Qty Sold",
         "Qty Sold PYear",
         "PO not Shipped",
+        "Blanket PO Qty",
         "Cons. Qty",
         "Cons. Qty New",
         "Sales 25&26",
