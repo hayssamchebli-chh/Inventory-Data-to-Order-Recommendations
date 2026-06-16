@@ -699,7 +699,15 @@ if uploaded_file:
         )
 
     output = BytesIO()
-    df.to_excel(output, index=False)
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="All Items")
+
+        if "order" in df.columns:
+            to_order_df = df[df["order"] > 0].copy()
+        else:
+            to_order_df = df.iloc[0:0].copy()
+
+        to_order_df.to_excel(writer, index=False, sheet_name="Items to Order")
     output.seek(0)
 
     with export_right:
