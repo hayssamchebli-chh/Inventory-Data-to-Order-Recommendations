@@ -6,22 +6,29 @@ from io import BytesIO
 # PAGE CONFIG
 # =========================
 st.set_page_config(
-    page_title="Inventory Calculator",
+    page_title="Inventory Order Recommendations",
     page_icon="📦",
     layout="wide"
 )
 
 # =========================
-# PROFESSIONAL CSS
+# PROFESSIONAL CSS / DESIGN SYSTEM
 # =========================
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+html, body, .stApp, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
 .stApp {
-    background: linear-gradient(180deg, #f5f7fb 0%, #eef2f7 100%);
+    background: #f3f5f9;
+    color: #1f2d3d;
 }
 
 [data-testid="stHeader"] {
-    background: #f5f7fb;
+    background: transparent;
     height: 0rem;
 }
 
@@ -30,165 +37,187 @@ st.markdown("""
 }
 
 .block-container {
-    padding-top: 50px;
-    padding-bottom: 2rem;
-    max-width: 1200px;
-    height: 500px;
+    padding-top: 2.2rem;
+    padding-bottom: 3rem;
+    max-width: 1180px;
 }
 
+/* ---------- Sidebar ---------- */
 section[data-testid="stSidebar"] {
-    width: 300px !important;
-    min-width: 0 !important;
-    max-width: 330px !important;
+    width: 320px !important;
+    min-width: 320px !important;
+    max-width: 340px !important;
 }
 
 section[data-testid="stSidebar"] > div {
-    width: 330px !important;
-    min-width: 330px !important;
-    max-width: 330px !important;
-    background: #f1f4f8;
-    padding-top: 0px;
+    background: #0f2540;
+    padding-top: 1.4rem;
 }
 
+section[data-testid="stSidebar"] * {
+    color: #d8e1ec;
+}
+
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: #ffffff;
+}
+
+section[data-testid="stSidebar"] hr {
+    display: block !important;
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    margin: 1.1rem 0;
+}
+
+/* ---------- Hero ---------- */
 .hero {
-    background: linear-gradient(135deg, #102a43 0%, #243b53 100%);
-    padding: 34px 38px;
-    border-radius: 22px;
-    color: white;
+    background: linear-gradient(135deg, #0b2540 0%, #1d3f63 55%, #2a5688 100%);
+    padding: 36px 40px;
+    border-radius: 20px;
+    color: #ffffff;
     margin-bottom: 26px;
-    box-shadow: 0 12px 30px rgba(16, 42, 67, 0.22);
+    box-shadow: 0 16px 40px rgba(11, 37, 64, 0.28);
 }
 
 .hero h1 {
     margin: 0;
-    font-size: 34px;
+    font-size: 32px;
     font-weight: 800;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.6px;
+    line-height: 1.15;
 }
 
 .hero p {
-    margin-top: 10px;
-    font-size: 16px;
-    color: #d9e2ec;
+    margin: 12px 0 0 0;
+    font-size: 15.5px;
+    color: #cdd9e7;
+    max-width: 760px;
+    line-height: 1.55;
 }
 
-.card {
+/* ---------- Real cards (st.container(border=True)) ---------- */
+div[data-testid="stVerticalBlockBorderWrapper"] {
     background: #ffffff;
-    padding: 24px;
-    border-radius: 18px;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    margin-bottom: 22px;
+    border: 1px solid #e6eaf0;
+    border-radius: 16px;
+    padding: 6px 22px 14px 22px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    margin-bottom: 20px;
 }
 
+/* ---------- Section headers ---------- */
 .section-title {
-    font-size: 20px;
-    font-weight: 750;
-    color: #102a43;
-    margin-bottom: 6px;
+    font-size: 19px;
+    font-weight: 700;
+    color: #0f2540;
+    margin: 10px 0 2px 0;
+    letter-spacing: -0.2px;
 }
 
 .section-subtitle {
-    font-size: 14px;
-    color: #627d98;
-    margin-bottom: 18px;
+    font-size: 13.5px;
+    color: #6b7c93;
+    margin-bottom: 16px;
+    line-height: 1.5;
 }
 
-.info-box {
-    background: #f0f7ff;
-    border-left: 5px solid #2f80ed;
+/* ---------- Info / status boxes ---------- */
+.info-box, .success-box, .warning-box, .info-box1 {
     padding: 16px 18px;
-    border-radius: 14px;
-    color: #243b53;
-    font-size: 14px;
-    height: 200px 
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
 }
 
-.info-box1 {
-    background: #f0f7ff;
-    border-left: 5px solid #2f80ed;
-    padding: 16px 18px;
-    border-radius: 14px;
-    color: #243b53;
-    font-size: 14px;
-    height: 80px 
+.info-box, .info-box1 {
+    background: #eef5ff;
+    border-left: 4px solid #2f6fed;
+    color: #1f3a5f;
 }
+
 .success-box {
     background: #ecfdf5;
-    border-left: 5px solid #10b981;
-    padding: 16px 18px;
-    border-radius: 14px;
-    color: #064e3b;
-    font-size: 14px;
+    border-left: 4px solid #10b981;
+    color: #065f46;
 }
 
 .warning-box {
     background: #fffbeb;
-    border-left: 5px solid #f59e0b;
-    padding: 16px 18px;
-    border-radius: 14px;
-    color: #78350f;
-    font-size: 14px;
+    border-left: 4px solid #f59e0b;
+    color: #92400e;
 }
 
+/* ---------- Metric cards ---------- */
 .metric-card {
     background: #ffffff;
-    border: 1px solid #e2e8f0;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+    border: 1px solid #e6eaf0;
+    padding: 18px 20px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    height: 100%;
 }
 
 .metric-label {
-    font-size: 13px;
-    color: #627d98;
+    font-size: 12.5px;
+    color: #6b7c93;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
     margin-bottom: 8px;
 }
 
 .metric-value {
-    font-size: 28px;
-    color: #102a43;
+    font-size: 30px;
+    color: #0f2540;
     font-weight: 800;
+    line-height: 1;
 }
 
 .metric-note {
-    font-size: 12px;
-    color: #829ab1;
-    margin-top: 6px;
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 8px;
 }
 
+/* ---------- Inputs ---------- */
 [data-testid="stDataFrame"] {
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
 }
 
 .stButton > button {
-    border-radius: 12px;
-    font-weight: 700;
+    border-radius: 10px;
+    font-weight: 600;
+    border: 1px solid #cdd7e4;
+    background: #ffffff;
+    color: #0f2540;
+    padding: 0.5rem 1.1rem;
+}
+
+.stButton > button:hover {
+    border-color: #2f6fed;
+    color: #2f6fed;
 }
 
 .stDownloadButton > button {
-    background: linear-gradient(135deg, #1f7aec 0%, #155bd5 100%);
-    color: white;
+    background: linear-gradient(135deg, #2f6fed 0%, #1b53cc 100%);
+    color: #ffffff;
     border: none;
-    border-radius: 12px;
-    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
     font-weight: 700;
-    box-shadow: 0 8px 16px rgba(31, 122, 236, 0.22);
+    box-shadow: 0 10px 20px rgba(47, 111, 237, 0.25);
 }
 
 .stDownloadButton > button:hover {
-    background: linear-gradient(135deg, #155bd5 0%, #0f4bb8 100%);
-    color: white;
+    background: linear-gradient(135deg, #1b53cc 0%, #1645ad 100%);
+    color: #ffffff;
 }
 
 footer {
     visibility: hidden;
-}
-
-hr {
-    display: none;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -198,8 +227,9 @@ hr {
 # =========================
 st.markdown("""
 <div class="hero">
-    <h1>📦 Inventory Data into Order Recommendations</h1>
-    <p>Upload your inventory file, choose a default safety factor, optionally upload item-level factors, and export a clean replenishment recommendation report.</p>
+    <h1>📦 Inventory Order Recommendations</h1>
+    <p>Upload your inventory file, set a default safety factor, optionally provide item-level factors,
+    and export a clean replenishment recommendation report.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -232,7 +262,7 @@ with st.sidebar:
     st.markdown(
         f"""
         By default, the app applies this factor to all items: **Default FACTOR = {default_factor}**
-        
+
         You may optionally upload a Safety Factor File to use different factors per item.
         """
     )
@@ -242,20 +272,19 @@ with st.sidebar:
     st.markdown("### Formula")
     st.markdown(
         """
-        **In order**  
+        **In order**
         PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty + Qty to Recieve - Advanced Reserved
-        
 
-        **Forcasted**  
+        **Forcasted**
         Stock Available Quantity + In order
 
-        **Sales 25&26**  
+        **Sales 25&26**
         Qty Sold + Qty Sold PYear + Cons. Qty + Cons. Qty New
 
-        **Safety**  
+        **Safety**
         ROUND(Sales 25&26 / Months) × FACTOR
 
-        **Order**  
+        **Order**
         Safety - Forcasted
         """
     )
@@ -263,49 +292,46 @@ with st.sidebar:
 # =========================
 # FILE UPLOAD CARD
 # =========================
+with st.container(border=True):
+    left, right = st.columns([1.4, 1])
 
-
-left, right = st.columns([1.4, 1])
-
-with left:
-    st.markdown('<div class="section-title">📂 Upload Files</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="section-subtitle">Upload the main inventory file. The safety factor file is optional.</div>',
-        unsafe_allow_html=True
-    )
-
-    upload_col1, upload_col2 = st.columns(2)
-
-    with upload_col1:
-        uploaded_file = st.file_uploader(
-            "Main Inventory File",
-            type=["xlsx"]
+    with left:
+        st.markdown('<div class="section-title">📂 Upload Files</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-subtitle">Upload the main inventory file. The safety factor file is optional.</div>',
+            unsafe_allow_html=True
         )
 
-    with upload_col2:
-        sf_file = st.file_uploader(
-            "Optional Safety Factor File",
-            type=["xlsx"]
-        )
+        upload_col1, upload_col2 = st.columns(2)
 
-with right:
-    st.markdown("""
-    <div class="info-box">
-        <strong>Main file:</strong> Required inventory report<br><br>
-        <strong>Safety file:</strong> Optional item-level factor file<br><br>
-        <strong>Default behavior:</strong> One factor applied to all items<br><br>
-        <strong>Zero-only columns:</strong> Removed automatically
-    </div>
-    """, unsafe_allow_html=True)
+        with upload_col1:
+            uploaded_file = st.file_uploader(
+                "Main Inventory File",
+                type=["xlsx"]
+            )
 
-if uploaded_file and sf_file:
-    st.success("✅ Main file and safety factor file uploaded. Item-level factors will be used.")
-elif uploaded_file:
-    st.info("ℹ️ Main file uploaded. The default FACTOR from the sidebar will be applied to all items.")
-else:
-    st.warning("⚠️ Please upload the main inventory file to generate the inventory report.")
+        with upload_col2:
+            sf_file = st.file_uploader(
+                "Optional Safety Factor File",
+                type=["xlsx"]
+            )
 
-st.markdown('</div>', unsafe_allow_html=True)
+    with right:
+        st.markdown("""
+        <div class="info-box">
+            <strong>Main file:</strong> Required inventory report<br><br>
+            <strong>Safety file:</strong> Optional item-level factor file<br><br>
+            <strong>Default behavior:</strong> One factor applied to all items<br><br>
+            <strong>Zero-only columns:</strong> Removed automatically
+        </div>
+        """, unsafe_allow_html=True)
+
+    if uploaded_file and sf_file:
+        st.success("✅ Main file and safety factor file uploaded. Item-level factors will be used.")
+    elif uploaded_file:
+        st.info("ℹ️ Main file uploaded. The default FACTOR from the sidebar will be applied to all items.")
+    else:
+        st.warning("⚠️ Please upload the main inventory file to generate the inventory report.")
 
 # =========================
 # MAIN LOGIC
@@ -340,10 +366,9 @@ if uploaded_file:
     missing_cols = [c for c in required_columns if c not in df.columns]
 
     if missing_cols:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.error(f"❌ Missing columns in main file: {missing_cols}")
-        st.write("Detected columns:", df.columns.tolist())
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.error(f"❌ Missing columns in main file: {missing_cols}")
+            st.write("Detected columns:", df.columns.tolist())
         st.stop()
 
     # -------------------------
@@ -378,10 +403,9 @@ if uploaded_file:
         missing_sf = [c for c in required_sf_cols if c not in safety_df.columns]
 
         if missing_sf:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.error(f"❌ Missing columns in safety factor file: {missing_sf}")
-            st.write("Detected columns:", safety_df.columns.tolist())
-            st.markdown('</div>', unsafe_allow_html=True)
+            with st.container(border=True):
+                st.error(f"❌ Missing columns in safety factor file: {missing_sf}")
+                st.write("Detected columns:", safety_df.columns.tolist())
             st.stop()
 
         safety_df = safety_df[required_sf_cols].copy()
@@ -434,100 +458,99 @@ if uploaded_file:
     # =========================
     # SAFETY FACTOR MANAGEMENT
     # =========================
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<div class="section-title">✏️ Safety Factor Management</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="section-title">✏️ Safety Factor Management</div>', unsafe_allow_html=True)
-
-    if sf_file:
-        st.markdown(
-            '<div class="section-subtitle">Item-level safety factors are loaded from the optional safety factor file. Missing factors use the default FACTOR from the sidebar.</div>',
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(
-            '<div class="section-subtitle">The default FACTOR from the sidebar is applied to all items. You can still edit factors before exporting.</div>',
-            unsafe_allow_html=True
-        )
-
-    status_col1, status_col2 = st.columns(2)
-
-    with status_col1:
-        st.markdown(f"""
-        <div class="success-box">
-            <strong>Factor source:</strong> {factor_source}<br>
-            <strong>Default FACTOR:</strong> {default_factor}
-        </div>
-        """, unsafe_allow_html=True)
-
-    with status_col2:
-        if sf_file and missing_factor_count > 0:
-            st.markdown(f"""
-            <div class="warning-box">
-                <strong>Missing item factors:</strong> {missing_factor_count}<br>
-                These items were filled with the default FACTOR.
-            </div>
-            """, unsafe_allow_html=True)
-        elif sf_file:
-            st.markdown("""
-            <div class="success-box">
-                <strong>Safety factor file:</strong> Uploaded<br>
-                All matched items were processed successfully.
-            </div>
-            """, unsafe_allow_html=True)
+        if sf_file:
+            st.markdown(
+                '<div class="section-subtitle">Item-level safety factors are loaded from the optional safety factor file. Missing factors use the default FACTOR from the sidebar.</div>',
+                unsafe_allow_html=True
+            )
         else:
-            st.markdown("""
-            <div class="info-box1">
-                <strong>Safety factor file:</strong> Not uploaded<br>
-                The default FACTOR is applied to every item.
+            st.markdown(
+                '<div class="section-subtitle">The default FACTOR from the sidebar is applied to all items. You can still edit factors before exporting.</div>',
+                unsafe_allow_html=True
+            )
+
+        status_col1, status_col2 = st.columns(2)
+
+        with status_col1:
+            st.markdown(f"""
+            <div class="success-box">
+                <strong>Factor source:</strong> {factor_source}<br>
+                <strong>Default FACTOR:</strong> {default_factor}
             </div>
             """, unsafe_allow_html=True)
 
-    if "edit_mode" not in st.session_state:
-        st.session_state.edit_mode = False
+        with status_col2:
+            if sf_file and missing_factor_count > 0:
+                st.markdown(f"""
+                <div class="warning-box">
+                    <strong>Missing item factors:</strong> {missing_factor_count}<br>
+                    These items were filled with the default FACTOR.
+                </div>
+                """, unsafe_allow_html=True)
+            elif sf_file:
+                st.markdown("""
+                <div class="success-box">
+                    <strong>Safety factor file:</strong> Uploaded<br>
+                    All matched items were processed successfully.
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("""
+                <div class="info-box1">
+                    <strong>Safety factor file:</strong> Not uploaded<br>
+                    The default FACTOR is applied to every item.
+                </div>
+                """, unsafe_allow_html=True)
 
-    edit_button_label = "Hide Safety Factor Editor" if st.session_state.edit_mode else "Edit Safety Factors"
+        st.markdown("<div style='height: 6px'></div>", unsafe_allow_html=True)
 
-    if st.button(edit_button_label):
-        st.session_state.edit_mode = not st.session_state.edit_mode
+        if "edit_mode" not in st.session_state:
+            st.session_state.edit_mode = False
 
-    if st.session_state.edit_mode:
-        edit_df = df[
-            [
-                "Item No.1",
-                "Description",
-                "Safety stock factor"
-            ]
-        ].copy()
+        edit_button_label = "Hide Safety Factor Editor" if st.session_state.edit_mode else "Edit Safety Factors"
 
-        edited = st.data_editor(
-            edit_df,
-            column_config={
-                "Item No.1": st.column_config.TextColumn(
+        if st.button(edit_button_label):
+            st.session_state.edit_mode = not st.session_state.edit_mode
+
+        if st.session_state.edit_mode:
+            edit_df = df[
+                [
                     "Item No.1",
-                    disabled=True
-                ),
-                "Description": st.column_config.TextColumn(
                     "Description",
-                    disabled=True
-                ),
-                "Safety stock factor": st.column_config.NumberColumn(
-                    "Safety stock factor",
-                    min_value=0.0,
-                    step=0.1,
-                    format="%.2f"
-                )
-            },
-            use_container_width=True,
-            height=350,
-            hide_index=True
-        )
+                    "Safety stock factor"
+                ]
+            ].copy()
 
-        df["Safety stock factor"] = pd.to_numeric(
-            edited["Safety stock factor"],
-            errors="coerce"
-        ).fillna(default_factor).values
+            edited = st.data_editor(
+                edit_df,
+                column_config={
+                    "Item No.1": st.column_config.TextColumn(
+                        "Item No.1",
+                        disabled=True
+                    ),
+                    "Description": st.column_config.TextColumn(
+                        "Description",
+                        disabled=True
+                    ),
+                    "Safety stock factor": st.column_config.NumberColumn(
+                        "Safety stock factor",
+                        min_value=0.0,
+                        step=0.1,
+                        format="%.2f"
+                    )
+                },
+                use_container_width=True,
+                height=350,
+                hide_index=True
+            )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+            df["Safety stock factor"] = pd.to_numeric(
+                edited["Safety stock factor"],
+                errors="coerce"
+            ).fillna(default_factor).values
 
     # -------------------------
     # CALCULATIONS
@@ -592,123 +615,122 @@ if uploaded_file:
     # =========================
     # SUMMARY SECTION
     # =========================
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<div class="section-title">📊 Report Summary</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-subtitle">A quick overview of the processed inventory file.</div>',
+            unsafe_allow_html=True
+        )
 
-    st.markdown('<div class="section-title">📊 Report Summary</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="section-subtitle">A quick overview of the processed inventory file.</div>',
-        unsafe_allow_html=True
-    )
+        total_items = len(df)
+        total_safety = int(df["Safety"].sum()) if "Safety" in df.columns else 0
+        items_to_order = int((df["order"] > 0).sum()) if "order" in df.columns else 0
+        total_order_qty = int(df.loc[df["order"] > 0, "order"].sum()) if "order" in df.columns else 0
 
-    total_items = len(df)
-    total_safety = int(df["Safety"].sum()) if "Safety" in df.columns else 0
-    items_to_order = int((df["order"] > 0).sum()) if "order" in df.columns else 0
-    total_order_qty = int(df.loc[df["order"] > 0, "order"].sum()) if "order" in df.columns else 0
+        m1, m2, m3, m4 = st.columns(4)
 
-    m1, m2, m3, m4 = st.columns(4)
+        with m1:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">Total Items</div>
+                <div class="metric-value">{total_items:,}</div>
+                <div class="metric-note">Rows processed</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with m1:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">Total Items</div>
-            <div class="metric-value">{total_items:,}</div>
-            <div class="metric-note">Rows processed</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with m2:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">Missing Factors</div>
+                <div class="metric-value">{missing_factor_count:,}</div>
+                <div class="metric-note">Filled with default factor</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with m2:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">Missing Factors</div>
-            <div class="metric-value">{missing_factor_count:,}</div>
-            <div class="metric-note">Filled with default factor</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with m3:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">Items to Order</div>
+                <div class="metric-value">{items_to_order:,}</div>
+                <div class="metric-note">Items where order &gt; 0</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with m3:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">Items to Order</div>
-            <div class="metric-value">{items_to_order:,}</div>
-            <div class="metric-note">Items where order &gt; 0</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with m4:
-        st.markdown(f"""
-        <div class="metric-card">
-            <div class="metric-label">Total Order Qty</div>
-            <div class="metric-value">{total_order_qty:,}</div>
-            <div class="metric-note">Sum of positive order qty</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+        with m4:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">Total Order Qty</div>
+                <div class="metric-value">{total_order_qty:,}</div>
+                <div class="metric-note">Sum of positive order qty</div>
+            </div>
+            """, unsafe_allow_html=True)
 
     # =========================
     # RESULTS SECTION
     # =========================
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+    with st.container(border=True):
+        top_left, top_right = st.columns([2, 1])
 
-    top_left, top_right = st.columns([2, 1])
+        with top_left:
+            st.markdown('<div class="section-title">📋 Processed Results</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="section-subtitle">Review the calculated inventory recommendations before exporting.</div>',
+                unsafe_allow_html=True
+            )
 
-    with top_left:
-        st.markdown('<div class="section-title">📋 Processed Results</div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="section-subtitle">Review the calculated inventory recommendations before exporting.</div>',
-            unsafe_allow_html=True
+        with top_right:
+            search_text = st.text_input(
+                "Search item or description",
+                placeholder="Type to filter...",
+                label_visibility="collapsed"
+            )
+
+        display_df = df.copy()
+
+        if search_text:
+            search_text = search_text.lower()
+
+            display_df = display_df[
+                display_df["Item No.1"].astype(str).str.lower().str.contains(search_text, na=False)
+                | display_df["Description"].astype(str).str.lower().str.contains(search_text, na=False)
+            ]
+
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            height=520
         )
-
-    with top_right:
-        search_text = st.text_input(
-            "Search item or description",
-            placeholder="Type to filter...",
-            label_visibility="collapsed"
-        )
-
-    display_df = df.copy()
-
-    if search_text:
-        search_text = search_text.lower()
-
-        display_df = display_df[
-            display_df["Item No.1"].astype(str).str.lower().str.contains(search_text, na=False)
-            | display_df["Description"].astype(str).str.lower().str.contains(search_text, na=False)
-        ]
-
-    st.dataframe(
-        display_df,
-        use_container_width=True,
-        height=520
-    )
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
     # =========================
     # EXPORT SECTION
     # =========================
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+    with st.container(border=True):
+        export_left, export_right = st.columns([2, 1])
 
-    export_left, export_right = st.columns([2, 1])
+        with export_left:
+            st.markdown('<div class="section-title">⬇️ Export Report</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="section-subtitle">Download the complete processed file as Excel. Search filtering does not affect the exported file.</div>',
+                unsafe_allow_html=True
+            )
 
-    with export_left:
-        st.markdown('<div class="section-title">⬇️ Export Report</div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="section-subtitle">Download the complete processed file as Excel. Search filtering does not affect the exported file.</div>',
-            unsafe_allow_html=True
-        )
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="All Items")
 
-    output = BytesIO()
-    df.to_excel(output, index=False)
-    output.seek(0)
+            if "order" in df.columns:
+                to_order_df = df[df["order"] > 0].copy()
+            else:
+                to_order_df = df.iloc[0:0].copy()
 
-    with export_right:
-        st.download_button(
-            label="📥 Download Excel Report",
-            data=output,
-            file_name="processed_inventory.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
-        )
+            to_order_df.to_excel(writer, index=False, sheet_name="Items to Order")
+        output.seek(0)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+        with export_right:
+            st.download_button(
+                label="📥 Download Excel Report",
+                data=output,
+                file_name="processed_inventory.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
