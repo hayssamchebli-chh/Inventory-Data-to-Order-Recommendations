@@ -272,7 +272,7 @@ with st.sidebar:
     st.markdown("### Formula")
     st.markdown(
         """
-        **In order** /n
+        **In order** \n
         = PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty + Qty to Recieve - Advanced Reserved
 
         **Forcasted**
