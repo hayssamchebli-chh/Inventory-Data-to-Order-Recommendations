@@ -272,19 +272,19 @@ with st.sidebar:
     st.markdown("### Formula")
     st.markdown(
         """
-        ** * In order** \n
+        *** In order** \n
         = PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty + Qty to Recieve - Advanced Reserved
 
-        ** * Forcasted** \n
+        *** Forcasted** \n
         = Stock Available Quantity + In order
 
-        ** * Sales 25&26** \n
+        *** Sales 25&26** \n
         = Qty Sold + Qty Sold PYear + Cons. Qty + Cons. Qty New
 
-        ** * Safety** \n
+        *** Safety** \n
         = ROUND(Sales 25&26 / Months) × FACTOR
 
-        ** * Order**
+        *** Order**
         = Safety - Forcasted
         """
     )
