@@ -275,13 +275,13 @@ with st.sidebar:
         **In order** \n
         = PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty + Qty to Recieve - Advanced Reserved
 
-        **Forcasted**
+        **Forcasted** \n
         = Stock Available Quantity + In order
 
-        **Sales 25&26**
+        **Sales 25&26** \n
         = Qty Sold + Qty Sold PYear + Cons. Qty + Cons. Qty New
 
-        **Safety**
+        **Safety** \n
         = ROUND(Sales 25&26 / Months) × FACTOR
 
         **Order**
