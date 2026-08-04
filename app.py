@@ -273,19 +273,19 @@ with st.sidebar:
     st.markdown(
         """
         **In order**
-        =PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty + Qty to Recieve - Advanced Reserved
+        = PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty + Qty to Recieve - Advanced Reserved
 
         **Forcasted**
-        =Stock Available Quantity + In order
+        = Stock Available Quantity + In order
 
         **Sales 25&26**
-        =Qty Sold + Qty Sold PYear + Cons. Qty + Cons. Qty New
+        = Qty Sold + Qty Sold PYear + Cons. Qty + Cons. Qty New
 
         **Safety**
-        =ROUND(Sales 25&26 / Months) × FACTOR
+        = ROUND(Sales 25&26 / Months) × FACTOR
 
         **Order**
-        =Safety - Forcasted
+        = Safety - Forcasted
         """
     )
 
