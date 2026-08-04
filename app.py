@@ -281,8 +281,11 @@ with st.sidebar:
         **- Sales 25&26** \n
         = Qty Sold + Qty Sold PYear + Cons. Qty + Cons. Qty New
 
+        **- Sales 25&26+Stock Reserved** \n
+        = Sales 25&26 + Stock Reserved
+
         **- Safety** \n
-        = ROUND(Sales 25&26 / Months) × FACTOR
+        = ROUND((Sales 25&26+Stock Reserved) / Months) × FACTOR
 
         **- Order**
         = Safety - Forcasted
@@ -351,6 +354,7 @@ if uploaded_file:
         "Item No.1",
         "Description",
         "Stock Available Quantity",
+        "Stock Reserved",
         "Advanced Reserved",
         "PR Approved Qty",
         "PO Qty",
@@ -439,6 +443,7 @@ if uploaded_file:
     # -------------------------
     numeric_columns = [
         "Stock Available Quantity",
+        "Stock Reserved",
         "Advanced Reserved",
         "PR Approved Qty",
         "PO Qty",
@@ -566,7 +571,9 @@ if uploaded_file:
         + df["Cons. Qty New"]
     )
 
-    df["Safety"] = ((df["Sales 25&26"] / months).round(0) * df["Safety stock factor"])
+    df["Sales 25&26+Stock Reserved"] = df["Sales 25&26"] + df["Stock Reserved"]
+
+    df["Safety"] = ((df["Sales 25&26+Stock Reserved"] / months).round(0) * df["Safety stock factor"])
 
     df["FACTOR"] = df["Safety stock factor"]
 
@@ -589,6 +596,8 @@ if uploaded_file:
         "Cons. Qty",
         "Cons. Qty New",
         "Sales 25&26",
+        "Stock Reserved",
+        "Sales 25&26+Stock Reserved",
         "Safety",
         "FACTOR",
         "order"
