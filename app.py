@@ -265,6 +265,8 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     border-radius: 14px;
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
     height: 100%;
+    /* clears the card (and its drop shadow) from the container border below */
+    margin-bottom: 12px;
 }
 
 .metric-label {
