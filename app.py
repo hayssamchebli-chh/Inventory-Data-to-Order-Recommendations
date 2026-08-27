@@ -4,6 +4,7 @@ import numpy as np
 from datetime import date
 from io import BytesIO
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.table import Table, TableStyleInfo
 
 # =========================
 # HELPERS
@@ -24,6 +25,10 @@ def write_sheet_with_formulas(writer, frame, sheet_name):
     Excel formulas so the file recalculates when Months, FACTOR or any other
     input is edited directly in Excel.
 
+    The sheet is registered as an Excel table, which lets the formulas reference
+    the column headers by name -- =[@[Qty Sold]]+[@[Qty Sold PYear]] -- instead
+    of cell coordinates like =G2+H2.
+
     Columns removed by the zero-only cleanup are substituted with a literal 0,
     which keeps the formulas valid whatever survived.
     """
@@ -31,47 +36,71 @@ def write_sheet_with_formulas(writer, frame, sheet_name):
 
     ws = writer.sheets[sheet_name]
 
-    letters = {
-        column_name: get_column_letter(position)
-        for position, column_name in enumerate(frame.columns, start=1)
-    }
+    if frame.empty:
+        return
 
-    def ref(column_name, row):
-        if column_name in letters:
-            return "%s%d" % (letters[column_name], row)
-        return "0"
+    column_names = list(frame.columns)
+
+    def ref(column_name):
+        """A structured reference to `column_name` on the current row."""
+        if column_name not in column_names:
+            return "0"
+
+        escaped = column_name
+        for character in ("'", "[", "]", "#", "@"):
+            escaped = escaped.replace(character, "'" + character)
+
+        return "[@[%s]]" % escaped
 
     formulas = {
-        "Forcasted": lambda row: (
-            "=%s+%s" % (ref("Stock Available Quantity", row), ref("In order", row))
+        "Forcasted": "=%s+%s" % (
+            ref("Stock Available Quantity"),
+            ref("In order"),
         ),
-        "Sales 25&26": lambda row: (
-            "=%s+%s+%s+%s" % (
-                ref("Qty Sold", row),
-                ref("Qty Sold PYear", row),
-                ref("Cons. Qty", row),
-                ref("Cons. Qty New", row),
-            )
+        "Sales 25&26": "=%s+%s+%s+%s" % (
+            ref("Qty Sold"),
+            ref("Qty Sold PYear"),
+            ref("Cons. Qty"),
+            ref("Cons. Qty New"),
         ),
-        "Sales 25&26+Stock Reserved": lambda row: (
-            "=%s+%s" % (ref("Sales 25&26", row), ref("Stock Reserved", row))
+        "Sales 25&26+Stock Reserved": "=%s+%s" % (
+            ref("Sales 25&26"),
+            ref("Stock Reserved"),
         ),
-        "Safety": lambda row: (
-            "=ROUND(%s/%s,0)*%s" % (
-                ref("Sales 25&26+Stock Reserved", row),
-                ref("Months", row),
-                ref("FACTOR", row),
-            )
+        "Safety": "=ROUND(%s/%s,0)*%s" % (
+            ref("Sales 25&26+Stock Reserved"),
+            ref("Months"),
+            ref("FACTOR"),
         ),
-        "order": lambda row: (
-            "=%s-%s" % (ref("Safety", row), ref("Forcasted", row))
+        "order": "=%s-%s" % (
+            ref("Safety"),
+            ref("Forcasted"),
         ),
     }
 
-    for row in range(2, len(frame) + 2):
-        for column_name, build_formula in formulas.items():
-            if column_name in letters:
-                ws["%s%d" % (letters[column_name], row)] = build_formula(row)
+    for position, column_name in enumerate(column_names, start=1):
+        if column_name not in formulas:
+            continue
+
+        letter = get_column_letter(position)
+
+        for row in range(2, len(frame) + 2):
+            ws["%s%d" % (letter, row)] = formulas[column_name]
+
+    table = Table(
+        displayName="".join(c for c in sheet_name if c.isalnum()),
+        ref="A1:%s%d" % (
+            get_column_letter(len(column_names)),
+            len(frame) + 1,
+        ),
+    )
+
+    table.tableStyleInfo = TableStyleInfo(
+        name="TableStyleMedium2",
+        showRowStripes=True
+    )
+
+    ws.add_table(table)
 
 
 # =========================
@@ -401,8 +430,14 @@ with st.sidebar:
     st.markdown("### Excel Output")
     st.markdown(
         """
-        The calculated columns are exported as live Excel formulas, so editing
-        Months, FACTOR or any input inside Excel recalculates Safety and order.
+        The calculated columns are exported as live Excel formulas that
+        reference the column headers by name, for example
+        `=ROUND([@[Sales 25&26+Stock Reserved]]/[@[Months]],0)*[@[FACTOR]]`.
+        Editing Months, FACTOR or any input inside Excel recalculates Safety
+        and order.
+
+        Each sheet is an Excel table, which is what makes the header names
+        usable in formulas.
 
         **In order** is exported as a value: its inputs (PR Approved Qty, PO Qty,
         Qty to Recieve) are not part of the report layout.
