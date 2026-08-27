@@ -1,6 +1,78 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+from datetime import date
 from io import BytesIO
+from openpyxl.utils import get_column_letter
+
+# =========================
+# HELPERS
+# =========================
+def excel_round(values):
+    """
+    Round half away from zero, the way Excel's ROUND does.
+
+    pandas rounds halves to even (10.5 -> 10), so leaving it alone would make
+    the values disagree with the ROUND formula now written into the cells.
+    """
+    return np.sign(values) * np.floor(np.abs(values) + 0.5)
+
+
+def write_sheet_with_formulas(writer, frame, sheet_name):
+    """
+    Write `frame` to `sheet_name`, then replace the calculated columns with live
+    Excel formulas so the file recalculates when Months, FACTOR or any other
+    input is edited directly in Excel.
+
+    Columns removed by the zero-only cleanup are substituted with a literal 0,
+    which keeps the formulas valid whatever survived.
+    """
+    frame.to_excel(writer, index=False, sheet_name=sheet_name)
+
+    ws = writer.sheets[sheet_name]
+
+    letters = {
+        column_name: get_column_letter(position)
+        for position, column_name in enumerate(frame.columns, start=1)
+    }
+
+    def ref(column_name, row):
+        if column_name in letters:
+            return "%s%d" % (letters[column_name], row)
+        return "0"
+
+    formulas = {
+        "Forcasted": lambda row: (
+            "=%s+%s" % (ref("Stock Available Quantity", row), ref("In order", row))
+        ),
+        "Sales 25&26": lambda row: (
+            "=%s+%s+%s+%s" % (
+                ref("Qty Sold", row),
+                ref("Qty Sold PYear", row),
+                ref("Cons. Qty", row),
+                ref("Cons. Qty New", row),
+            )
+        ),
+        "Sales 25&26+Stock Reserved": lambda row: (
+            "=%s+%s" % (ref("Sales 25&26", row), ref("Stock Reserved", row))
+        ),
+        "Safety": lambda row: (
+            "=ROUND(%s/%s,0)*%s" % (
+                ref("Sales 25&26+Stock Reserved", row),
+                ref("Months", row),
+                ref("FACTOR", row),
+            )
+        ),
+        "order": lambda row: (
+            "=%s-%s" % (ref("Safety", row), ref("Forcasted", row))
+        ),
+    }
+
+    for row in range(2, len(frame) + 2):
+        for column_name, build_formula in formulas.items():
+            if column_name in letters:
+                ws["%s%d" % (letters[column_name], row)] = build_formula(row)
+
 
 # =========================
 # PAGE CONFIG
@@ -240,12 +312,31 @@ with st.sidebar:
     st.markdown("## ⚙️ Parameters")
     st.markdown("Set the planning values below.")
 
+    today = date.today()
+    previous_year = today.year - 1
+    auto_months = float(12 + today.month)
+
+    auto_months_enabled = st.checkbox(
+        "Auto-calculate Months",
+        value=True,
+        help="12 months for the previous year plus the months elapsed in the current year."
+    )
+
     months = st.number_input(
         "Months",
         min_value=1.0,
-        value=17.0,
+        value=auto_months,
         step=0.5,
-        format="%.1f"
+        format="%.1f",
+        disabled=auto_months_enabled
+    )
+
+    if auto_months_enabled:
+        months = auto_months
+
+    st.caption(
+        f"12 months of {previous_year} + {today.month} month(s) of {today.year} "
+        f"= {auto_months:.1f}"
     )
 
     default_factor = st.number_input(
@@ -289,6 +380,32 @@ with st.sidebar:
 
         **- Order**
         = Safety - Forcasted
+        """
+    )
+
+    st.markdown("---")
+
+    st.markdown("### Months")
+    st.markdown(
+        """
+        Months is calculated automatically as the 12 months of the previous year
+        plus the months elapsed in the current year. Untick **Auto-calculate
+        Months** to set it yourself.
+
+        The value used is exported in its own **Months** column.
+        """
+    )
+
+    st.markdown("---")
+
+    st.markdown("### Excel Output")
+    st.markdown(
+        """
+        The calculated columns are exported as live Excel formulas, so editing
+        Months, FACTOR or any input inside Excel recalculates Safety and order.
+
+        **In order** is exported as a value: its inputs (PR Approved Qty, PO Qty,
+        Qty to Recieve) are not part of the report layout.
         """
     )
 
@@ -573,7 +690,12 @@ if uploaded_file:
 
     df["Sales 25&26+Stock Reserved"] = df["Sales 25&26"] + df["Stock Reserved"]
 
-    df["Safety"] = ((df["Sales 25&26+Stock Reserved"] / months).round(0) * df["Safety stock factor"])
+    df["Months"] = months
+
+    df["Safety"] = (
+        excel_round(df["Sales 25&26+Stock Reserved"] / months)
+        * df["Safety stock factor"]
+    )
 
     df["FACTOR"] = df["Safety stock factor"]
 
@@ -598,6 +720,7 @@ if uploaded_file:
         "Sales 25&26",
         "Stock Reserved",
         "Sales 25&26+Stock Reserved",
+        "Months",
         "Safety",
         "FACTOR",
         "order"
@@ -611,7 +734,8 @@ if uploaded_file:
     # -------------------------
     protected_columns = [
         "Item No.1",
-        "Description"
+        "Description",
+        "Months"
     ]
 
     for col in df.columns.tolist():
@@ -725,14 +849,14 @@ if uploaded_file:
 
         output = BytesIO()
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False, sheet_name="All Items")
+            write_sheet_with_formulas(writer, df, "All Items")
 
             if "order" in df.columns:
                 to_order_df = df[df["order"] > 0].copy()
             else:
                 to_order_df = df.iloc[0:0].copy()
 
-            to_order_df.to_excel(writer, index=False, sheet_name="Items to Order")
+            write_sheet_with_formulas(writer, to_order_df, "Items to Order")
         output.seek(0)
 
         with export_right:
