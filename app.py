@@ -26,8 +26,14 @@ def write_sheet_with_formulas(writer, frame, sheet_name):
     input is edited directly in Excel.
 
     The sheet is registered as an Excel table, which lets the formulas reference
-    the column headers by name -- =[@[Qty Sold]]+[@[Qty Sold PYear]] -- instead
-    of cell coordinates like =G2+H2.
+    the column headers by name instead of cell coordinates like =G2+H2. They are
+    stored in the form Excel itself writes to file:
+
+        AllItems[[#This Row],[Qty Sold]]+AllItems[[#This Row],[Qty Sold PYear]]
+
+    The shorter [@[Qty Sold]] spelling is only valid when typed into the formula
+    bar. Written straight to file it makes Excel strip every formula and report
+    the workbook as needing repair, so the fully qualified form is required here.
 
     Columns removed by the zero-only cleanup are substituted with a literal 0,
     which keeps the formulas valid whatever survived.
@@ -40,6 +46,7 @@ def write_sheet_with_formulas(writer, frame, sheet_name):
         return
 
     column_names = list(frame.columns)
+    table_name = "".join(c for c in sheet_name if c.isalnum())
 
     def ref(column_name):
         """A structured reference to `column_name` on the current row."""
@@ -50,7 +57,7 @@ def write_sheet_with_formulas(writer, frame, sheet_name):
         for character in ("'", "[", "]", "#", "@"):
             escaped = escaped.replace(character, "'" + character)
 
-        return "[@[%s]]" % escaped
+        return "%s[[#This Row],[%s]]" % (table_name, escaped)
 
     formulas = {
         "Forcasted": "=%s+%s" % (
@@ -88,7 +95,7 @@ def write_sheet_with_formulas(writer, frame, sheet_name):
             ws["%s%d" % (letter, row)] = formulas[column_name]
 
     table = Table(
-        displayName="".join(c for c in sheet_name if c.isalnum()),
+        displayName=table_name,
         ref="A1:%s%d" % (
             get_column_letter(len(column_names)),
             len(frame) + 1,
@@ -431,8 +438,7 @@ with st.sidebar:
     st.markdown(
         """
         The calculated columns are exported as live Excel formulas that
-        reference the column headers by name, for example
-        `=ROUND([@[Sales 25&26+Stock Reserved]]/[@[Months]],0)*[@[FACTOR]]`.
+        reference the column headers by name rather than cell coordinates.
         Editing Months, FACTOR or any input inside Excel recalculates Safety
         and order.
 
