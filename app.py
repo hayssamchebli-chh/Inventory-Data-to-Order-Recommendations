@@ -500,9 +500,9 @@ with st.sidebar:
     st.markdown(
         """
         Months is calculated automatically as the 12 months of the previous
-        year, plus the completed months of the current year, plus the part of
-        the current month that has elapsed, to two decimals. Untick
-        **Auto-calculate Months** to set it yourself.
+        year, plus the completed **months & days** of the current year, to two decimals. 
+        
+        Untick **Auto-calculate Months** to set it yourself.
 
         The value used is exported in its own **Months** column.
         """
@@ -513,8 +513,8 @@ with st.sidebar:
     st.markdown("### Excel Output")
     st.markdown(
         """
-        The calculated columns are exported as live Excel formulas that
-        reference the column headers by name rather than cell coordinates.
+        The calculated columns are exported as live Excel formulas.
+        
         Editing Months, FACTOR or any input inside Excel recalculates Safety
         and order.
 
