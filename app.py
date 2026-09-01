@@ -451,10 +451,10 @@ with st.sidebar:
 
     default_factor = st.number_input(
         "Default FACTOR",
-        min_value=0.0,
-        value=6.0,
-        step=0.1,
-        format="%.1f"
+        min_value=0,
+        value=6,
+        step=1,
+        format="%d"
     )
 
     st.markdown("---")
@@ -715,6 +715,10 @@ if uploaded_file:
     for col in numeric_columns:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
 
+    # FACTOR is a whole number. Rounding here covers every route in: the
+    # sidebar default, an uploaded factor file, and the editor below.
+    df["Safety stock factor"] = excel_round(df["Safety stock factor"]).astype(int)
+
     # =========================
     # SAFETY FACTOR MANAGEMENT
     # =========================
@@ -797,9 +801,9 @@ if uploaded_file:
                     ),
                     "Safety stock factor": st.column_config.NumberColumn(
                         "Safety stock factor",
-                        min_value=0.0,
-                        step=0.1,
-                        format="%.2f"
+                        min_value=0,
+                        step=1,
+                        format="%d"
                     )
                 },
                 use_container_width=True,
@@ -807,10 +811,12 @@ if uploaded_file:
                 hide_index=True
             )
 
-            df["Safety stock factor"] = pd.to_numeric(
-                edited["Safety stock factor"],
-                errors="coerce"
-            ).fillna(default_factor).values
+            df["Safety stock factor"] = excel_round(
+                pd.to_numeric(
+                    edited["Safety stock factor"],
+                    errors="coerce"
+                ).fillna(default_factor)
+            ).astype(int).values
 
     # -------------------------
     # CALCULATIONS
