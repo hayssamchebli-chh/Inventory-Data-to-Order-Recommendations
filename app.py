@@ -181,6 +181,30 @@ section[data-testid="stSidebar"] hr {
     margin: 1.25rem 0;
 }
 
+/* ---------- Sidebar inputs ---------- */
+/* The sidebar sets every descendant to a pale colour for the dark panel, which
+   also lands on the text inside the white input fields. These put it back to a
+   dark grey. -webkit-text-fill-color is needed as well: WebKit paints disabled
+   input text with that property, so setting colour alone leaves it washed out. */
+section[data-testid="stSidebar"] [data-testid="stNumberInputField"] {
+    color: #1f2d3d;
+    -webkit-text-fill-color: #1f2d3d;
+}
+
+section[data-testid="stSidebar"] [data-testid="stNumberInputField"]:disabled {
+    color: #4a5a6e;
+    -webkit-text-fill-color: #4a5a6e;
+}
+
+section[data-testid="stSidebar"] [data-testid="stNumberInputStepUp"],
+section[data-testid="stSidebar"] [data-testid="stNumberInputStepDown"] {
+    color: #5f7286;
+}
+
+section[data-testid="stSidebar"] [data-testid="InputInstructions"] {
+    color: #5f7286;
+}
+
 /* ---------- Sidebar formula reference ---------- */
 section[data-testid="stSidebar"] .formula-list {
     margin: 6px 0 2px 0;
