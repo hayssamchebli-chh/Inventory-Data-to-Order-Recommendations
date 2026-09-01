@@ -518,9 +518,6 @@ with st.sidebar:
         Editing Months, FACTOR or any input inside Excel recalculates Safety
         and order.
 
-        Each sheet is an Excel table, which is what makes the header names
-        usable in formulas.
-
         **In order** is exported as a value: its inputs (PR Approved Qty, PO Qty,
         Qty to Recieve) are not part of the report layout.
         """
