@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import calendar
 from datetime import date
 from io import BytesIO
 from openpyxl.utils import get_column_letter
@@ -352,29 +353,40 @@ with st.sidebar:
 
     today = date.today()
     previous_year = today.year - 1
-    auto_months = float(12 + today.month)
+
+    completed_months = today.month - 1
+    days_in_month = calendar.monthrange(today.year, today.month)[1]
+
+    auto_months = round(
+        12 + completed_months + today.day / days_in_month,
+        2
+    )
 
     auto_months_enabled = st.checkbox(
         "Auto-calculate Months",
         value=True,
-        help="12 months for the previous year plus the months elapsed in the current year."
+        help="12 months for the previous year, plus the completed months of the "
+             "current year, plus the days elapsed in the current month."
     )
 
     months = st.number_input(
         "Months",
         min_value=1.0,
         value=auto_months,
-        step=0.5,
-        format="%.1f",
+        step=0.01,
+        format="%.2f",
         disabled=auto_months_enabled
     )
 
     if auto_months_enabled:
         months = auto_months
 
+    month_word = "month" if completed_months == 1 else "months"
+    day_word = "day" if today.day == 1 else "days"
+
     st.caption(
-        f"12 months of {previous_year} + {today.month} month(s) of {today.year} "
-        f"= {auto_months:.1f}"
+        f"12 months of {previous_year} + {completed_months} {month_word} and "
+        f"{today.day} {day_word} of {today.year} = {auto_months:.2f}"
     )
 
     default_factor = st.number_input(
@@ -426,9 +438,10 @@ with st.sidebar:
     st.markdown("### Months")
     st.markdown(
         """
-        Months is calculated automatically as the 12 months of the previous year
-        plus the months elapsed in the current year. Untick **Auto-calculate
-        Months** to set it yourself.
+        Months is calculated automatically as the 12 months of the previous
+        year, plus the completed months of the current year, plus the part of
+        the current month that has elapsed, to two decimals. Untick
+        **Auto-calculate Months** to set it yourself.
 
         The value used is exported in its own **Months** column.
         """
