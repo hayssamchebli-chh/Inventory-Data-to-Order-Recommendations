@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import calendar
+import html
 from datetime import date
 from io import BytesIO
 from openpyxl.utils import get_column_letter
@@ -176,8 +177,43 @@ section[data-testid="stSidebar"] h3 {
 section[data-testid="stSidebar"] hr {
     display: block !important;
     border: none;
-    border-top: 1px solid rgba(255,255,255,0.12);
-    margin: 1.1rem 0;
+    border-top: 2px solid rgba(255, 255, 255, 0.22);
+    margin: 1.25rem 0;
+}
+
+/* ---------- Sidebar formula reference ---------- */
+section[data-testid="stSidebar"] .formula-list {
+    margin: 6px 0 2px 0;
+}
+
+section[data-testid="stSidebar"] .formula-row {
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+section[data-testid="stSidebar"] .formula-row:last-child {
+    border-bottom: none;
+    padding-bottom: 2px;
+}
+
+section[data-testid="stSidebar"] .formula-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.15px;
+    margin-bottom: 5px;
+}
+
+section[data-testid="stSidebar"] .formula-body {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #b3c4d8;
+}
+
+section[data-testid="stSidebar"] .formula-eq {
+    color: #6f8caa;
+    font-weight: 700;
+    margin-right: 3px;
 }
 
 /* ---------- Hero ---------- */
@@ -411,26 +447,51 @@ with st.sidebar:
     st.markdown("---")
 
     st.markdown("### Formula")
+
+    formula_reference = [
+        (
+            "In order",
+            "PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty "
+            "+ Qty to Recieve − Advanced Reserved",
+        ),
+        (
+            "Forcasted",
+            "Stock Available Quantity + In order",
+        ),
+        (
+            "Sales 25&26",
+            "Qty Sold + Qty Sold PYear + Cons. Qty + Cons. Qty New",
+        ),
+        (
+            "Sales 25&26+Stock Reserved",
+            "Sales 25&26 + Stock Reserved",
+        ),
+        (
+            "Safety",
+            "ROUND((Sales 25&26+Stock Reserved) ÷ Months) × FACTOR",
+        ),
+        (
+            "Order",
+            "Safety − Forcasted",
+        ),
+    ]
+
     st.markdown(
-        """
-        **- In order** \n
-        = PO not Shipped + PR Approved Qty + PO Qty + Blanket PO Qty + Qty to Recieve - Advanced Reserved
-
-        **- Forcasted** \n
-        = Stock Available Quantity + In order
-
-        **- Sales 25&26** \n
-        = Qty Sold + Qty Sold PYear + Cons. Qty + Cons. Qty New
-
-        **- Sales 25&26+Stock Reserved** \n
-        = Sales 25&26 + Stock Reserved
-
-        **- Safety** \n
-        = ROUND((Sales 25&26+Stock Reserved) / Months) × FACTOR
-
-        **- Order**
-        = Safety - Forcasted
-        """
+        '<div class="formula-list">'
+        + "".join(
+            '<div class="formula-row">'
+            '<div class="formula-name">{name}</div>'
+            '<div class="formula-body">'
+            '<span class="formula-eq">=</span>{expression}'
+            '</div>'
+            '</div>'.format(
+                name=html.escape(name),
+                expression=html.escape(expression),
+            )
+            for name, expression in formula_reference
+        )
+        + "</div>",
+        unsafe_allow_html=True,
     )
 
     st.markdown("---")
